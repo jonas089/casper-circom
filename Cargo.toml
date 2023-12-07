@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "casper-circom",
+    "circom-contract"
+]
