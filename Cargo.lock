@@ -484,7 +484,7 @@ dependencies = [
 [[package]]
 name = "casper-contract"
 version = "4.0.0"
-source = "git+https://github.com/jonas089/casper-node/?branch=circom-verifier#f9fc7bb9ce0d3ab99ba4b350fb9bf68cbae67dab"
+source = "git+https://github.com/jonas089/casper-node/?branch=circom-verifier#38d66fe4a069e0bac844d78c30a97e47e831682c"
 dependencies = [
  "casper-types",
  "hex_fmt",
@@ -493,7 +493,7 @@ dependencies = [
 [[package]]
 name = "casper-execution-engine"
 version = "7.0.0"
-source = "git+https://github.com/jonas089/casper-node/?branch=circom-verifier#f9fc7bb9ce0d3ab99ba4b350fb9bf68cbae67dab"
+source = "git+https://github.com/jonas089/casper-node/?branch=circom-verifier#38d66fe4a069e0bac844d78c30a97e47e831682c"
 dependencies = [
  "anyhow",
  "ark-bn254",
@@ -545,7 +545,7 @@ dependencies = [
 [[package]]
 name = "casper-hashing"
 version = "3.0.0"
-source = "git+https://github.com/jonas089/casper-node/?branch=circom-verifier#f9fc7bb9ce0d3ab99ba4b350fb9bf68cbae67dab"
+source = "git+https://github.com/jonas089/casper-node/?branch=circom-verifier#38d66fe4a069e0bac844d78c30a97e47e831682c"
 dependencies = [
  "base16",
  "blake2 0.9.2",
@@ -564,7 +564,7 @@ dependencies = [
 [[package]]
 name = "casper-types"
 version = "4.0.1"
-source = "git+https://github.com/jonas089/casper-node/?branch=circom-verifier#f9fc7bb9ce0d3ab99ba4b350fb9bf68cbae67dab"
+source = "git+https://github.com/jonas089/casper-node/?branch=circom-verifier#38d66fe4a069e0bac844d78c30a97e47e831682c"
 dependencies = [
  "base16",
  "base64",
