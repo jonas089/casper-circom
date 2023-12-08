@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 casper-circom = {path="../casper-circom"}
+base64 = { version = "0.13.0", default-features = false, features = ["alloc"] }
+casper-contract = { git = "https://github.com/jonas089/casper-node/", branch="circom-verifier", default-features = false, features = ["test-support"]}
+casper-types = {git = "https://github.com/jonas089/casper-node/", branch="circom-verifier"}

@@ -683,7 +683,10 @@ dependencies = [
 name = "circom-contract"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "casper-circom",
+ "casper-contract",
+ "casper-types",
 ]
 
 [[package]]

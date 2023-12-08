@@ -1,4 +1,4 @@
-use crate::CircomInput;
+use crate::{CircomInput, CircomCircuitInput};
 use std::path::PathBuf;
 
 // fs and io
@@ -27,7 +27,8 @@ type GrothBn = Groth16<Bn254>;
 pub struct CircomGenerator{
     pub wasm: PathBuf,
     pub r1cs: PathBuf,
-    pub output: PathBuf,
+    pub proof_out: PathBuf,
+    pub circuit_out: PathBuf,
     pub private_inputs: Vec<(String, i32)>,
     pub public_inputs: Vec<(String, i32)>
 }
@@ -42,6 +43,20 @@ impl CircomGenerator{
 
     }
     */
+    pub fn generate_circuit(&mut self) -> CircomCircuitInput{
+        let wasm_buffer = std::fs::read(&self.wasm).unwrap();
+        let r1cs_buffer = std::fs::read(&self.r1cs).unwrap();
+        CircomCircuitInput { 
+            circuit_wasm: wasm_buffer, circuit_r1cs: r1cs_buffer
+        }
+    }
+
+    pub fn dump_circuit(&mut self){
+        let circuit = self.generate_circuit();
+        let buffer = serde_json::to_vec(&circuit).unwrap();
+        std::fs::write(&self.circuit_out, buffer);
+    }
+
     // generate CircomInput serialized
     pub fn generate_input(&mut self) -> CircomInput{
         let cfg = CircomConfig::<Bn254>::new(
@@ -89,7 +104,7 @@ impl CircomGenerator{
         let _ = proof.clone().b.serialize_uncompressed(&mut b_writer);
         let _ = proof.clone().c.serialize_uncompressed(&mut c_writer);
 
-        CircomInput{
+        CircomInput {
             alpha_g1: alpha_g1_writer,
             beta_g2: beta_g2_writer,
             delta_g2: delta_g2_writer,
@@ -101,35 +116,10 @@ impl CircomGenerator{
             inputs: self.public_inputs.to_vec()
         }
     }
+
     pub fn dump_input(&mut self){
-        let inputs = &self.generate_input();
+        let inputs = self.generate_input();
         let buffer = serde_json::to_vec(&inputs).unwrap();
-        std::fs::write(&self.output, buffer);
+        std::fs::write(&self.proof_out, buffer);
     }
-}
-
-#[test]
-fn test_input_generator(){
-    let mut generator = CircomGenerator{
-        wasm: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.wasm"),
-        r1cs: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.r1cs"),
-        output: PathBuf::from("proof.pem"),
-        private_inputs: Vec::new(),
-        public_inputs: vec![("a".to_string(), 2), ("b".to_string(), 20), ("c".to_string(), 40)]
-    };
-
-    let input = generator.generate_input();
-    println!(
-        "alpha_g1: {:?}, beta_g2: {:?}, delta_g2: {:?}, gamma_g2: {:?}, gamma_abc_g1: {:?}, a: {:?}, b: {:?}, c: {:?}, inputs: {:?}",
-        &input.alpha_g1,
-        &input.beta_g2,
-        &input.delta_g2,
-        &input.gamma_g2,
-        &input.gamma_abc_g1,
-        &input.a,
-        &input.b,
-        &input.c,
-        &input.inputs
-    );
-    generator.dump_input();
 }
