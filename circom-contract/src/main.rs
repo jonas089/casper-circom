@@ -41,6 +41,7 @@ pub extern "C" fn call(){
     runtime::put_key("circom_multiplier_contract", contract_hash_key);
 }
 
+/*
 #[test]
 fn generate_full_circom_payload(){
     use casper_circom::{CircomInput, generator, generator::CircomGenerator};
@@ -70,3 +71,4 @@ fn generate_full_circom_payload(){
     generator.dump_input();
     generator.dump_circuit();
 }
+*/
