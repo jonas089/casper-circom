@@ -41,34 +41,37 @@ pub extern "C" fn call(){
     runtime::put_key("circom_multiplier_contract", contract_hash_key);
 }
 
-/*
-#[test]
-fn generate_full_circom_payload(){
-    use casper_circom::{CircomInput, generator, generator::CircomGenerator};
-    use std::path::PathBuf;
-    let mut generator = CircomGenerator{
-        wasm: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.wasm"),
-        r1cs: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.r1cs"),
-        proof_out: PathBuf::from("proof.pem"),
-        circuit_out: PathBuf::from("circuit.pem"),
-        private_inputs: Vec::new(),
-        public_inputs: vec![("a".to_string(), 2), ("b".to_string(), 20), ("c".to_string(), 40)]
-    };
-
-    /*let input = generator.generate_input();
-    println!(
-        "alpha_g1: {:?}, beta_g2: {:?}, delta_g2: {:?}, gamma_g2: {:?}, gamma_abc_g1: {:?}, a: {:?}, b: {:?}, c: {:?}, inputs: {:?}",
-        &input.alpha_g1,
-        &input.beta_g2,
-        &input.delta_g2,
-        &input.gamma_g2,
-        &input.gamma_abc_g1,
-        &input.a,
-        &input.b,
-        &input.c,
-        &input.inputs
-    );*/
-    generator.dump_input();
-    generator.dump_circuit();
+#[cfg(test)]
+mod tests{
+    #[test]
+    #[cfg(not(target_arch = "wasm32"))] 
+    #[cfg(feature = "casper-circom")]
+    fn generate_full_circom_payload(){
+        use casper_circom::{CircomInput, generator, generator::CircomGenerator};
+        use std::path::PathBuf;
+        let mut generator = CircomGenerator{
+            wasm: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.wasm"),
+            r1cs: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.r1cs"),
+            proof_out: PathBuf::from("proof.pem"),
+            circuit_out: PathBuf::from("circuit.pem"),
+            private_inputs: Vec::new(),
+            public_inputs: vec![("a".to_string(), 2), ("b".to_string(), 20), ("c".to_string(), 40)]
+        };
+    
+        /*let input = generator.generate_input();
+        println!(
+            "alpha_g1: {:?}, beta_g2: {:?}, delta_g2: {:?}, gamma_g2: {:?}, gamma_abc_g1: {:?}, a: {:?}, b: {:?}, c: {:?}, inputs: {:?}",
+            &input.alpha_g1,
+            &input.beta_g2,
+            &input.delta_g2,
+            &input.gamma_g2,
+            &input.gamma_abc_g1,
+            &input.a,
+            &input.b,
+            &input.c,
+            &input.inputs
+        );*/
+        generator.dump_input();
+        generator.dump_circuit();
+    }    
 }
-*/

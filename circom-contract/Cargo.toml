@@ -3,10 +3,15 @@ name = "circom-contract"
 version = "0.1.0"
 edition = "2021"
 
+[build]
+target = "wasm32-unknown-unknown"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# casper-circom = {path="../casper-circom"}
 base64 = { version = "0.13.0", default-features = false, features = ["alloc"] }
 casper-contract = { git = "https://github.com/jonas089/casper-node/", branch="circom-verifier", default-features = false, features = ["test-support"]}
 casper-types = { git = "https://github.com/jonas089/casper-node/", branch="circom-verifier", default-features = false}
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+casper-circom = {path="../casper-circom", optional=true}
