@@ -6,10 +6,9 @@ This project enables the verification of general purpose `circom` zero knowledge
 
 
 ## Setup a local network with the `casper-circom` branch :computer:
-To be able to use the circom host-side verifier, integrated in the Casper node, you need to setup a local test network, because this feature has not been merged to the official release branch. Once The setup is complete and the network is running, you can use this crate to generate a valid circom proof for `any circuit` (tested with the multiplier2 `hello-world` circuit provided in the `official circom documentation`). The proof will be written to a file `proof.pem` and the circuit payload (which is required by the on-chain verifier) will be written to `circuit.pem`. The example smart contract utilizes the `include_bytes!` macro to load these files at compile-time, which reduces the gas cost `from ~25 CSPR to < .001 CSPR`.
+To be able to use the circom host-side verifier, integrated in the Casper node, you need to setup a local test network, because this feature has not been merged to the official release branch. Once The setup is complete and the network is running, you can use this crate to generate a valid circom proof for `any circuit` (tested with the multiplier2 `hello-world` circuit provided in the `official circom documentation`). The proof will be written to a file `proof.pem` and the circuit payload (which is required by the on-chain verifier) will be written to `circuit.pem`. The example smart contract utilizes the `include_bytes!` macro to load these files at compile-time, which reduces the gas cost significantly. The exact cost depends on the size of the `proof.pem` file. Installing the contract is somewhat expensive (for the example it's about `78` CSPR), since the entire serialized circuit is submitted as a payload. But this will usually only happen once in a production system
 
 To setup the network of casper nodes, we will utilize my `nctl-titano-env` github repository, which includes a lot of useful scripts that extend the default docker image.
-
 First, we need to clone the `nctl-titano-env` github repository and checkout to the `circom` branch:
 
 ```
@@ -22,40 +21,46 @@ git pull
 Next, we want to build the docker image for the custom node with circom support enabled, located at `git@github.com:jonas089/casper-node` branch `circom-verifier`:
 
 ```bash
-cd nctl-titano-env/custom
-./build.sh
+    cd nctl-titano-env/custom
+    ./build.sh
 ```
 
 The build process can take a while (10 Minutes +):
 
-```bash
-    <insert example output>
-```
-
+![Output](https://www.github.com/jonas089/casper-circom/resources/build_output.png)
 
 Once the node + docker image was successfully built, we can create a new container with the node's image:
 
 ```bash
-./init-container.sh
+    ./init-container.sh
 ```
 
 And source the nctl command line tool:
 
 ```bash
-source casper-nctl-docker/nctl-activate.sh
+    source casper-nctl-docker/nctl-activate.sh
 ```
 
 Then, to start the network, run:
 
 ```bash
-nctl-start
+    nctl-start
 ```
 
 You should see an output similar to this:
 
 ```bash
-    <insert example output>
-
+    2023-12-11T15:03:41.626978 [INFO] [850] NCTL :: starting node(s) complete        │
+    validators-1:casper-net-1-node-1    RUNNING   pid 790, uptime 0:00:08            │
+    validators-1:casper-net-1-node-2    RUNNING   pid 791, uptime 0:00:08            │
+    validators-1:casper-net-1-node-3    RUNNING   pid 792, uptime 0:00:08            │
+    validators-2:casper-net-1-node-4    RUNNING   pid 819, uptime 0:00:07            │
+    validators-2:casper-net-1-node-5    RUNNING   pid 820, uptime 0:00:07            │
+    validators-3:casper-net-1-node-10   STOPPED   Not started                        │
+    validators-3:casper-net-1-node-6    STOPPED   Not started                        │
+    validators-3:casper-net-1-node-7    STOPPED   Not started                        │
+    validators-3:casper-net-1-node-8    STOPPED   Not started                        │
+    validators-3:casper-net-1-node-9    STOPPED   Not started
 ```
 
 :exclamation: I recommend that before proceeding you make sure that your network is actually producing blocks. To do so, 
@@ -66,21 +71,21 @@ The network can get stuck, though this usually only happens when re-starting it 
 The example circuit from the [circom documentation](https://docs.circom.io/getting-started/writing-circuits/) looks like this:
 
 ```rust
-pragma circom 2.0.0;
+    pragma circom 2.0.0;
 
-/*This circuit template checks that c is the multiplication of a and b.*/  
+    /*This circuit template checks that c is the multiplication of a and b.*/  
 
-template Multiplier2 () {  
+    template Multiplier2 () {  
 
-   // Declaration of signals.  
-   signal input a;  
-   signal input b;  
-   signal output c;  
+    // Declaration of signals.  
+    signal input a;  
+    signal input b;  
+    signal output c;  
 
-   // Constraints.  
-   c <== a * b;  
-}
-component main {public [a,b,c]} = Multiplier2();
+    // Constraints.  
+    c <== a * b;  
+    }
+    component main {public [a,b,c]} = Multiplier2();
 ```
 :warning: I modified this circuit slightly by making `a, b, c` public inputs. This is because I wanted to make sure that public inputs are passed correctly when utilizing this implementation for more advanced circuits.
 
@@ -109,8 +114,8 @@ Compiling the smart contract involves two steps, the cargo build process and was
 
 ### 1. Compile the smart contract to WebAssembly:
 ```bash
-rustup target add wasm32-unknown-unknown
-cargo build --release --target wasm32-unknown-unknown
+    rustup target add wasm32-unknown-unknown
+    cargo build --release --target wasm32-unknown-unknown
 ```
 
 The compiled contract can be found in `target/wasm32-unknown-unknown/release/circom-contract.wasm`
@@ -131,7 +136,13 @@ Use `wasm-opt` to optimize `circom-contract.wasm`:
 This will output the optimized `contract.wasm` file that we will want to deploy to our custom casper network.
 
 ## Setup accounts
+In order to deploy the smart contract, we need to obtain a funded account's secret key from the network.
 
+To obtain the users directory from the nctl environment, run:
+```bash
+    ./cp-users.sh
+```
+Copy the `secret_key.pem` file from `users/user-1/`. This account holds a very large amount of tokens on our testnet and we can spend those tokens to make deploys (install and execute smart contracts).
 
 
 ## Deploy the smart contract and await execution 
@@ -160,9 +171,54 @@ In the event of an invalid proof, `User Error 0` will be returned which maps to 
 Example output for a valid proof:
 
 ```bash
-    <insert example output>
-
-
+    ...
+        {
+            "key": "balance-dc401b81391f90ce9b2767c5b51aa95b49aca1831f89fc5063b89b56200b2144",
+            "transform": {
+            "AddUInt512": "21013038535"
+            }
+        },
+        {
+            "key": "hash-8b18a64bb7b8aff6ba80fadf9bb7ebd31ee4ac8e4ae998bc85807bcf3155f32e",
+            "transform": "Identity"
+        },
+        {
+            "key": "hash-42b91e9228283325f4a4500ffa368760b84987bfe421837bee58174f8c4f8ed8",
+            "transform": "Identity"
+        },
+        {
+            "key": "hash-8b18a64bb7b8aff6ba80fadf9bb7ebd31ee4ac8e4ae998bc85807bcf3155f32e",
+            "transform": "Identity"
+        },
+        {
+            "key": "balance-1e594a04c36f46d5e5ebb72064ebfea5659f53ee38e552229b8e989ff57462fd",
+            "transform": "Identity"
+        },
+        {
+            "key": "balance-0ea6305f5eb1c20c9295e3d93334a74ce0105d852267eb3c320b716fc5089e95",
+            "transform": "Identity"
+        },
+        {
+            "key": "balance-1e594a04c36f46d5e5ebb72064ebfea5659f53ee38e552229b8e989ff57462fd",
+            "transform": {
+            "WriteCLValue": {
+                "cl_type": "U512",
+                "bytes": "00",
+                "parsed": "0"
+            }
+            }
+        },
+        {
+            "key": "balance-0ea6305f5eb1c20c9295e3d93334a74ce0105d852267eb3c320b716fc5089e95",
+            "transform": {
+            "AddUInt512": "78986961465"
+            }
+        }
+        ]
+    },
+    "transfers": [],
+    "cost": "78774708550"
+    }
 ```
 
 Congratulations :rocket:, you now know how to generate and verify Circom proofs on the Casper Blockchain. While this is still an experimental feature, it's a powerful exercise and might benefit the blockchain ecosystem in the near future :key:.
@@ -171,8 +227,8 @@ Congratulations :rocket:, you now know how to generate and verify Circom proofs 
 ## Purge the docker image and container
 If you want to get rid of all data produced by this tutorial, run the following:
 
-```
-nctl-stop && ./rm-container.sh && ../prune.sh
+```bash
+    nctl-stop && ./rm-container.sh && ../prune.sh
 ```
 
 This will remove:
