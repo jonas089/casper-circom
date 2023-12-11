@@ -5,15 +5,53 @@ To be able to use the circom host-side verifier, integrated in the Casper node, 
 
 To setup the network of casper nodes, we will utilize my `nctl-titano-env` configuration.
 
+First, we need to clone the `nctl-titano-env` github repository and checkout to the `circom` branch:
+
 ```
-    Write documentation on how to do that <here>
+git clone git@github.com:jonas089/nctl-titano-env
+cd nctl-titano-env
+git checkout circom
+git pull
+```
+
+Next, we want to build the docker image for the custom node with circom support enabled, located at `git@github.com:jonas089/casper-node` branch `circom-verifier`:
+```bash
+cd nctl-titano-env/custom
+./build.sh
+```
+=> this build process will take a while
+
+Once the node + docker image was successfully built, create a new container with the node's image:
+
+```bash
+./init-container.sh
+```
+
+And source the nctl command line tool:
+
+```bash
+source casper-nctl-docker/nctl-activate.sh
+```
+
+Then, to start the network, run:
+
+```bash
+nctl-start
+```
+
+You should see an output similar to this:
+
+```bash
+    <insert example output>
+
+
 ```
 
 ## Write a circom circuit
 
 The example circuit from the [circom documentation](https://docs.circom.io/getting-started/writing-circuits/) looks like this:
 
-```
+```rust
 pragma circom 2.0.0;
 
 /*This circuit template checks that c is the multiplication of a and b.*/  
@@ -37,7 +75,7 @@ component main = Multiplier2();
 ## Generate the payload for the verifier
 Run `cargo test --features casper-circom` to generate the payload (`proof.pem`, `circuit.pem`) for the example circuit `multiplier2`. If you want to generate proofs for other circuits, import the `casper-circom` library and construct a custom `Generator`:
 
-```
+```rust
     ...
     let mut generator = CircomGenerator{
         wasm: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.wasm"),
@@ -54,12 +92,19 @@ The `casper-circom` library enables anyone to quickly collect circuit inputs and
 ## Deploy the smart contract and await execution
 To deploy the smart contract, we use the `casper-client-rs` binary. Run `cargo install casper-client-rs` to install it.
 
-```
+```bash
     casper-client put-deploy ...
-
     ./get_deploy.sh DEPLOY_HASH
 ```
 
 
 If the smart contract deployment returns `Success`, it means that the proof was successfully verified by the on-chain host function. In the event of an invalid proof, `User Error 0` will be returned which maps to `CircomError::InvalidProof`.
+
+Example output for a valid proof:
+
+```bash
+    <insert example output>
+
+
+```
 
