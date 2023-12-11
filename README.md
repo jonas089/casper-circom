@@ -27,7 +27,7 @@ Next, we want to build the docker image for the custom node with circom support 
 
 The build process can take a while (10 Minutes +):
 
-![Output](https://www.github.com/jonas089/casper-circom/resources/build_output.png)
+![Output](https://github.com/jonas089/casper-circom/blob/master/resources/build_output.png)
 
 Once the node + docker image was successfully built, we can create a new container with the node's image:
 
