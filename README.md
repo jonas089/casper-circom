@@ -1,9 +1,7 @@
 # Full circom support in casper-node :closed_lock_with_key:
-This project enables the verification of general purpose `circom` zero knowledge proofs on-chain. This readme serves as a documentation and step-by-step instruction on how to practically apply my `circom` research and get started with on-chain circuit development on the Casper blockchain. :seedling:=>:deciduous_tree:
+This project enables the verification of general purpose `circom` zero knowledge proofs on-chain. This readme serves as a documentation and step-by-step instruction on how to practically apply my `circom` research and get started with on-chain circuit development on the Casper blockchain. :seedling: => :deciduous_tree:
 
-## What is circom
-!todo: write introduction to circom & add links
-
+Circom is a language with a compiler that enables the implementation of high-level zero knowlege circuits that are reduced to R1CS constraint systems. Read morea about circom [here](https://docs.circom.io/)
 
 ## Setup a local network with the `casper-circom` branch :computer:
 To be able to use the circom host-side verifier, integrated in the Casper node, you need to setup a local test network, because this feature has not been merged to the official release branch. Once The setup is complete and the network is running, you can use this crate to generate a valid circom proof for `any circuit` (tested with the multiplier2 `hello-world` circuit provided in the `official circom documentation`). The proof will be written to a file `proof.pem` and the circuit payload (which is required by the on-chain verifier) will be written to `circuit.pem`. The example smart contract utilizes the `include_bytes!` macro to load these files at compile-time, which reduces the gas cost significantly. The exact cost depends on the size of the `proof.pem` file. Installing the contract is somewhat expensive (for the example it's about `78` CSPR), since the entire serialized circuit is submitted as a payload. But this will usually only happen once in a production system
@@ -170,8 +168,9 @@ In the event of an invalid proof, `User Error 0` will be returned which maps to 
 
 Example output for a valid proof:
 
-```bash
+```
     ...
+    {{[
         {
             "key": "balance-dc401b81391f90ce9b2767c5b51aa95b49aca1831f89fc5063b89b56200b2144",
             "transform": {
@@ -236,9 +235,3 @@ This will remove:
     - The docker image
 
 :warning: If you delete the node image, you will have to re-build it before being able to run a local testnet.
-
-
-!todo: explain account setup / obtain secret_key
-!todo: add example output
-!todo: add links
-!todo: explain the example circuit
