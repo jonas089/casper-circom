@@ -1,5 +1,5 @@
 # Full circom support in casper-node :closed_lock_with_key:
-This project enables the verification of general purpose [circom](https://docs.circom.io/) zero knowledge proofs on-chain. This readme serves as a documentation and step-by-step instruction on how to practically apply my circom research and get started with on-chain circuit development on the [Casper](https://casper.network/en-us/) blockchain. :seedling: => :deciduous_tree:
+This project enables the verification of general purpose [circom](https://docs.circom.io/) zero knowledge proofs on-chain. This readme serves as a documentation and step-by-step instruction on how to practically apply my circom research and get started with on-chain circuit development on the [Casper](https://casper.network/en-us/) blockchain.
 
 Circom is a language with a compiler that enables the implementation of high-level zero knowlege circuits that are reduced to R1CS constraint systems. Read morea about circom [here](https://docs.circom.io/)
 
