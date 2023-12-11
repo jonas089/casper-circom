@@ -1,4 +1,4 @@
-# Full circom support in casper-node
+# Full circom support in casper-node :closed_lock_with_key:
 
 ## Setup a local network with the `casper-circom` branch
 To be able to use the circom host-side verifier, integrated in the Casper node, you need to setup a local test network, because this feature has not been merged to the official release branch. Once The setup is complete and the network is running, you can use this crate to generate a valid circom proof for `any circuit` (tested with the multiplier2 `hello-world` circuit provided in the `official circom documentation`). The proof will be written to a file `proof.pem` and the circuit payload (which is required by the on-chain verifier) will be written to `circuit.pem`. The example smart contract utilizes the `include_bytes!` macro to load these files at compile-time, which reduces the gas cost `from ~25 CSPR to < .001 CSPR`.
@@ -19,9 +19,14 @@ Next, we want to build the docker image for the custom node with circom support 
 cd nctl-titano-env/custom
 ./build.sh
 ```
-=> this build process will take a while
+The build process can take a while (10 Minutes +):
 
-Once the node + docker image was successfully built, create a new container with the node's image:
+```bash
+    <insert example output>
+```
+
+
+Once the node + docker image was successfully built, we can create a new container with the node's image:
 
 ```bash
 ./init-container.sh
@@ -43,7 +48,6 @@ You should see an output similar to this:
 
 ```bash
     <insert example output>
-
 
 ```
 
@@ -108,3 +112,18 @@ Example output for a valid proof:
 
 ```
 
+Congratulations :rocket:, you now know how to generate and verify Circom proofs on the Casper Blockchain. While this is still an experimental feature, it's a powerful exercise and might benefit the blockchain ecosystem in the near future :key:.
+
+
+## Purge the docker image and container
+If you want to get rid of all data produced by this tutorial, run the following:
+
+```
+nctl-stop && ./rm-container.sh && ../prune.sh
+```
+
+This will remove:
+    - The docker container that contains the image
+    - The docker image
+
+:warning: If you delete the node image, you will have to re-build it before being able to run a local testnet.
