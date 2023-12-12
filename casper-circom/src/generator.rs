@@ -2,27 +2,18 @@ use crate::{CircomInput, CircomCircuitInput};
 use std::path::PathBuf;
 
 // fs and io
-use std::io::{self, Read};
-use std::fs::File;
 use serde_json;
-use serde::{Serialize, Deserialize};
-use std::fs;
 
 // native ark imports
 use ark_groth16::{Groth16, ProvingKey};
 use ark_crypto_primitives::snark::SNARK;
-use ark_ec::{
-    bn::Bn
-};
-use ark_circom::ethereum::{Proof, VerifyingKey};
-use ark_circom::{CircomConfig, CircomBuilder, CircomCircuit};
-use ark_bn254::{Bn254, Config, G1Affine, G2Affine};
-use ark_circom::{circom::R1CSFile, WitnessCalculator};
-use ark_serialize::{CanonicalSerialize, CanonicalDeserialize, Write};
+use ark_ec::bn::Bn;
+use ark_circom::{CircomConfig, CircomBuilder };
+use ark_bn254::Bn254;
+use ark_serialize::CanonicalSerialize;
 
 // custom circom types (Groth16)
 type GrothBn = Groth16<Bn254>;
-
 
 pub struct CircomGenerator{
     pub wasm: PathBuf,
@@ -35,31 +26,23 @@ pub struct CircomGenerator{
 
 impl CircomGenerator{
     // generate CircomCircuitInput serialized
-
-    /* this should be done by the contract upon installation
-    pub fn generate_circuit(self){
-        let wasm_buffer = include_bytes!("circuit/multiplier.wasm");
-        let wasm_buffer = include_bytes!("circuit/multiplier.r1cs");
-
-    }
-    */
     pub fn generate_circuit(&mut self) -> CircomCircuitInput{
-        let wasm_buffer = std::fs::read(&self.wasm).unwrap();
-        let r1cs_buffer = std::fs::read(&self.r1cs).unwrap();
+        let wasm_buffer: Vec<u8> = std::fs::read(&self.wasm).unwrap();
+        let r1cs_buffer: Vec<u8> = std::fs::read(&self.r1cs).unwrap();
         CircomCircuitInput { 
             circuit_wasm: wasm_buffer, circuit_r1cs: r1cs_buffer
         }
     }
 
     pub fn dump_circuit(&mut self){
-        let circuit = self.generate_circuit();
-        let buffer = serde_json::to_vec(&circuit).unwrap();
-        std::fs::write(&self.circuit_out, buffer);
+        let circuit: CircomCircuitInput = self.generate_circuit();
+        let buffer: Vec<u8> = serde_json::to_vec(&circuit).unwrap();
+        std::fs::write(&self.circuit_out, buffer).expect("Failed to write Circuit!");
     }
 
     // generate CircomInput serialized
     pub fn generate_input(&mut self) -> CircomInput{
-        let cfg = CircomConfig::<Bn254>::new(
+        let cfg: CircomConfig<Bn<ark_bn254::Config>> = CircomConfig::<Bn254>::new(
             &self.wasm,
             &self.r1cs
         )
@@ -73,12 +56,12 @@ impl CircomGenerator{
         for input in self.public_inputs.clone(){
             builder.push_input(input.0, input.1)
         };
-        let circom = builder.setup();
-        let mut rng = rand::thread_rng();
-        let params = GrothBn::generate_random_parameters_with_reduction(circom, &mut rng).unwrap();
-        let circom = builder.build().unwrap();
+        let circom: ark_circom::CircomCircuit<Bn<ark_bn254::Config>> = builder.setup();
+        let mut rng: rand::prelude::ThreadRng = rand::thread_rng();
+        let params: ProvingKey<Bn<ark_bn254::Config>> = GrothBn::generate_random_parameters_with_reduction(circom, &mut rng).unwrap();
+        let circom: ark_circom::CircomCircuit<Bn<ark_bn254::Config>> = builder.build().unwrap();
 
-        let proof = GrothBn::prove(&params, circom, &mut rng).unwrap();
+        let proof: ark_groth16::Proof<Bn<ark_bn254::Config>> = GrothBn::prove(&params, circom, &mut rng).unwrap();
         
         // Verifying key
         let mut alpha_g1_writer: Vec<u8> = Vec::new();
@@ -118,8 +101,8 @@ impl CircomGenerator{
     }
 
     pub fn dump_input(&mut self){
-        let inputs = self.generate_input();
-        let buffer = serde_json::to_vec(&inputs).unwrap();
-        std::fs::write(&self.proof_out, buffer);
+        let inputs: CircomInput = self.generate_input();
+        let buffer: Vec<u8> = serde_json::to_vec(&inputs).unwrap();
+        std::fs::write(&self.proof_out, buffer).expect("Failed to write proof!");
     }
 }

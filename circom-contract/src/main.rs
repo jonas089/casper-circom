@@ -5,10 +5,11 @@ use error::CircomError;
 use casper_contract::contract_api::{circom::circom_verifier, runtime, storage};
 use casper_types::{CLType, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Key, contracts::NamedKeys};
 
+#[cfg(not(feature = "casper-circom"))]
 #[no_mangle]
 pub extern "C" fn call_verifier(){
-    let circuit_payload = include_bytes!("../circuit.pem");
-    let proof_payload = include_bytes!("../proof.pem");
+    let circuit_payload: &[u8] = include_bytes!("../circuit.pem");
+    let proof_payload: &[u8] = include_bytes!("../proof.pem");
     if circom_verifier(proof_payload, circuit_payload) != [1]{
         runtime::revert(CircomError::InvalidProof);
     }
@@ -27,16 +28,16 @@ pub extern "C" fn call(){
     );
     entry_points.add_entry_point(call_verifier);
     // named keys definitions
-    let mut named_keys = NamedKeys::new();
+    let mut named_keys: std::collections::BTreeMap<String, Key> = NamedKeys::new();
     // contract package
-    let package_key_name = "circom_multiplier_contract".to_string();
+    let package_key_name: String = "circom_multiplier_contract".to_string();
     let (contract_hash, _) = storage::new_contract(
         entry_points,
         Some(named_keys),
         Some(package_key_name),
         Some("circom_multiplier_contract".to_string()),
     );
-    let contract_hash_key = Key::from(contract_hash);
+    let contract_hash_key: Key = Key::from(contract_hash);
     // store contract package key
     runtime::put_key("circom_multiplier_contract", contract_hash_key);
 }
@@ -58,19 +59,6 @@ mod tests{
             public_inputs: vec![("a".to_string(), 2), ("b".to_string(), 20), ("c".to_string(), 40)]
         };
     
-        /*let input = generator.generate_input();
-        println!(
-            "alpha_g1: {:?}, beta_g2: {:?}, delta_g2: {:?}, gamma_g2: {:?}, gamma_abc_g1: {:?}, a: {:?}, b: {:?}, c: {:?}, inputs: {:?}",
-            &input.alpha_g1,
-            &input.beta_g2,
-            &input.delta_g2,
-            &input.gamma_g2,
-            &input.gamma_abc_g1,
-            &input.a,
-            &input.b,
-            &input.c,
-            &input.inputs
-        );*/
         generator.dump_input();
         generator.dump_circuit();
     }    
