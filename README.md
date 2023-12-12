@@ -468,7 +468,8 @@ nctl-stop && ./rm-container.sh && ../prune.sh
 ```
 
 This will remove:
-    - The docker container that contains the image
-    - The docker image
-
+```
+- The docker container that contains the image
+- The docker image
+```
 :warning: If you delete the node image, you will have to re-build it before being able to run a local testnet.
