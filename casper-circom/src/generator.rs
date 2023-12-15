@@ -48,16 +48,25 @@ impl CircomGenerator{
         let proof: ark_groth16::Proof<Bls12<Config>> = GrothBls::prove(&params, circom.clone(), &mut rng).unwrap();
         // obtain verifying key
         let pvk: ark_groth16::PreparedVerifyingKey<Bls12<Config>> = GrothBls::process_vk(&params.vk).unwrap();
-        // serialize public inputs
-        let public_inputs = circom.get_public_inputs().unwrap();
-        let mut serialized_inputs = Vec::new();
-        let _ = public_inputs.iter().map(|input| input.0.serialize_uncompressed(&mut serialized_inputs));
+
+        let mut pvk_buffer: Vec<u8> = Vec::new();
+        let _ = pvk.serialize_uncompressed(&mut pvk_buffer);
+        let mut proof_buffer: Vec<u8> = Vec::new();
+        let _ = proof.serialize_uncompressed(&mut proof_buffer);
         // serialize the proof
         let mut serialized_proof: Vec<u8> = Vec::new();
         let _ = proof.serialize_uncompressed(&mut serialized_proof);
         // serialize the vk
         let mut serialized_vk: Vec<u8> = Vec::new();
         let _ = pvk.serialize_uncompressed(&mut serialized_vk);
+        let public_inputs = circom.get_public_inputs().unwrap();
+        // serialize the inputs
+        let mut inputs_as_vec = Vec::new();
+        for input in public_inputs.iter() {
+            inputs_as_vec.push(input.0); // handle this unwrap appropriately
+        }
+        let mut serialized_inputs = Vec::new();
+        let _ = inputs_as_vec.serialize_uncompressed(&mut serialized_inputs);
         // return CircomProof instance
         CircomProof{
             vk: serialized_vk,
