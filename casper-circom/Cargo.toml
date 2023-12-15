@@ -11,7 +11,7 @@ rand = { version = "0.8", default-features = false, features = ["std_rng"]}
 ark-crypto-primitives = { version = "= 0.4.0" }
 ark-ec = { version= "= 0.4.1", default-features = false }
 ark-circom = { git = "https://github.com/jonas089/circom-compat" }
-ark-bn254 = "0.4.0"
+ark-bls12-377 = "0.4.0"
 ark-groth16 = { version = "=0.4.0", default-features = false, features = ["parallel"] }
 ark-serialize = { version = "0.4", features = ["derive"] }
 

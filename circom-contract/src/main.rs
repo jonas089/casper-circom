@@ -8,9 +8,8 @@ use casper_types::{CLType, EntryPoint, EntryPointAccess, EntryPointType, EntryPo
 #[cfg(not(feature = "casper-circom"))]
 #[no_mangle]
 pub extern "C" fn call_verifier(){
-    let circuit_payload: &[u8] = include_bytes!("../circuit.pem");
     let proof_payload: &[u8] = include_bytes!("../proof.pem");
-    if circom_verifier(proof_payload, circuit_payload) != [1]{
+    if circom_verifier(proof_payload) != [1]{
         runtime::revert(CircomError::InvalidProof);
     }
 }
@@ -54,7 +53,6 @@ mod tests{
             wasm: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.wasm"),
             r1cs: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.r1cs"),
             proof_out: PathBuf::from("proof.pem"),
-            circuit_out: PathBuf::from("circuit.pem"),
             private_inputs: Vec::new(),
             public_inputs: vec![("a".to_string(), 2), ("b".to_string(), 20), ("c".to_string(), 40)]
         };
