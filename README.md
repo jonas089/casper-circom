@@ -4,7 +4,7 @@ This project enables the verification of general purpose [circom](https://docs.c
 Circom is a language with a compiler that enables the implementation of high-level zero knowlege circuits that are reduced to R1CS constraint systems. Read more about circom [here](https://docs.circom.io/)
 
 ## Setup a local network with the `casper-circom` branch :computer:
-To be able to use the circom host-side verifier, integrated in the Casper node, you need to setup a local test network, because this feature has not been merged to the official release branch. Once The setup is complete and the network is running, you can use this crate to generate a valid circom proof for any circuit (tested with a variation of the `multiplier2` circuit provided in the [official circom documentation](https://docs.circom.io/getting-started/writing-circuits/)). The proof will be written to a file `proof.pem`. The example smart contract utilizes the `include_bytes!` macro to load the file at compile-time, which reduces the gas cost significantly. The exact cost depends on the size of the `proof.pem` file. Installing the contract is somewhat expensive (for the example it's about `78 CSPR`). The cost of verifying a proof should generally be very low, likely less than `0.001` CSPR per call. 
+To be able to use the circom host-side verifier, integrated in the Casper node, you need to setup a local test network, because this feature has not been merged to the official release branch. Once The setup is complete and the network is running, you can use this crate to generate a valid circom proof for any circuit (tested with a variation of the `multiplier2` circuit provided in the [official circom documentation](https://docs.circom.io/getting-started/writing-circuits/)). The proof will be written to a file `proof.pem`. The example smart contract utilizes the `include_bytes!` macro to load the file at compile-time, which reduces the gas cost significantly. The exact cost depends on the size of the `proof.pem` file. Installing the contract is somewhat expensive (for the example it's about `100+ CSPR`). The cost of verifying a proof should generally be very low, likely less than `0.001` CSPR per call. 
 :warning: This low gas cost is misleading as it doesn't take into consideration the network effect. Validators must be compensated fairly for the Casper mainnet to be healthy. This implies a SIGNIFICANTLY larger cost, potentially in the thousands.
 
 To setup the network of Casper nodes, we will utilize my `nctl-titano-env` github repository, which includes a lot of useful scripts that extend the default docker image.
@@ -96,7 +96,7 @@ signal input b;
 signal output c;  
 
 // Constraints.  
-c <== a * b;  
+c <== a * b;
 }
 component main {public [a,b,c]} = Multiplier2();
 ```
