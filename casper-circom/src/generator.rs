@@ -1,16 +1,17 @@
 use crate::CircomProof;
 use std::path::PathBuf;
 
+use casper_types::{crypto::gens::public_key_arb, bytesrepr::deserialize};
 // fs and io
 use serde_json;
 
 // native ark imports
-use ark_groth16::{Groth16, ProvingKey};
+use ark_groth16::{Groth16, ProvingKey, PreparedVerifyingKey, Proof};
 use ark_crypto_primitives::snark::SNARK;
 use ark_ec::bls12::Bls12;
-use ark_circom::{CircomConfig, CircomBuilder, CircomCircuit };
-use ark_bls12_377::{Bls12_377, Config};
-use ark_serialize::CanonicalSerialize;
+use ark_circom::{CircomConfig, CircomBuilder, CircomCircuit};
+use ark_bls12_377::{Bls12_377, Config, Fr};
+use ark_serialize::*;
 type GrothBls = Groth16<Bls12_377>;
 
 pub struct CircomGenerator{
@@ -53,6 +54,7 @@ impl CircomGenerator{
         let _ = pvk.serialize_uncompressed(&mut pvk_buffer);
         let mut proof_buffer: Vec<u8> = Vec::new();
         let _ = proof.serialize_uncompressed(&mut proof_buffer);
+        
         // serialize the proof
         let mut serialized_proof: Vec<u8> = Vec::new();
         let _ = proof.serialize_uncompressed(&mut serialized_proof);
@@ -61,12 +63,13 @@ impl CircomGenerator{
         let _ = pvk.serialize_uncompressed(&mut serialized_vk);
         let public_inputs = circom.get_public_inputs().unwrap();
         // serialize the inputs
-        let mut inputs_as_vec = Vec::new();
-        for input in public_inputs.iter() {
-            inputs_as_vec.push(input.0); // handle this unwrap appropriately
-        }
         let mut serialized_inputs = Vec::new();
-        let _ = inputs_as_vec.serialize_uncompressed(&mut serialized_inputs);
+        for input in public_inputs.iter(){
+            let mut buffer = Vec::new();
+            input.serialize_uncompressed(&mut buffer).unwrap();
+            serialized_inputs.push(buffer);
+        }
+
         // return CircomProof instance
         CircomProof{
             vk: serialized_vk,
