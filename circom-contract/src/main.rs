@@ -47,7 +47,7 @@ mod tests{
     #[cfg(not(target_arch = "wasm32"))] 
     #[cfg(feature = "casper-circom")]
     fn generate_full_circom_payload(){
-        use casper_circom::{CircomInput, generator, generator::CircomGenerator};
+        use casper_circom::{CircomProof, generator, generator::CircomGenerator};
         use std::path::PathBuf;
         let mut generator = CircomGenerator{
             wasm: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.wasm"),
@@ -58,6 +58,5 @@ mod tests{
         };
     
         generator.dump_input();
-        generator.dump_circuit();
     }    
 }

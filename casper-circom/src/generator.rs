@@ -7,10 +7,10 @@ use serde_json;
 // native ark imports
 use ark_groth16::{Groth16, ProvingKey};
 use ark_crypto_primitives::snark::SNARK;
-use ark_ec::{bn::Bn, bls12::Bls12};
+use ark_ec::bls12::Bls12;
 use ark_circom::{CircomConfig, CircomBuilder, CircomCircuit };
 use ark_bls12_377::{Bls12_377, Config};
-use ark_serialize::{CanonicalSerialize, CanonicalDeserialize};
+use ark_serialize::CanonicalSerialize;
 type GrothBls = Groth16<Bls12_377>;
 
 pub struct CircomGenerator{
