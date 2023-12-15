@@ -1,10 +1,11 @@
 # Full circom support in casper-node :closed_lock_with_key:
 This project enables the verification of general purpose [circom](https://docs.circom.io/) zero knowledge proofs on-chain. This readme serves as a documentation and step-by-step instruction on how to practically apply my circom research and get started with on-chain circuit development on the [Casper](https://casper.network/en-us/) blockchain.
 
-Circom is a language with a compiler that enables the implementation of high-level zero knowlege circuits that are reduced to R1CS constraint systems. Read morea about circom [here](https://docs.circom.io/)
+Circom is a language with a compiler that enables the implementation of high-level zero knowlege circuits that are reduced to R1CS constraint systems. Read more about circom [here](https://docs.circom.io/)
 
 ## Setup a local network with the `casper-circom` branch :computer:
-To be able to use the circom host-side verifier, integrated in the Casper node, you need to setup a local test network, because this feature has not been merged to the official release branch. Once The setup is complete and the network is running, you can use this crate to generate a valid circom proof for any circuit (tested with a variation of the `multiplier2` circuit provided in the [official circom documentation](https://docs.circom.io/getting-started/writing-circuits/)). The proof will be written to a file `proof.pem` and the circuit payload (which is required by the on-chain verifier) will be written to `circuit.pem`. The example smart contract utilizes the `include_bytes!` macro to load these files at compile-time, which reduces the gas cost significantly. The exact cost depends on the size of the `proof.pem` file. Installing the contract is somewhat expensive (for the example it's about `78 CSPR`). The cost of verifying a proof should generally be very low, likely less than `0.001` CSPR per call.
+To be able to use the circom host-side verifier, integrated in the Casper node, you need to setup a local test network, because this feature has not been merged to the official release branch. Once The setup is complete and the network is running, you can use this crate to generate a valid circom proof for any circuit (tested with a variation of the `multiplier2` circuit provided in the [official circom documentation](https://docs.circom.io/getting-started/writing-circuits/)). The proof will be written to a file `proof.pem`. The example smart contract utilizes the `include_bytes!` macro to load the file at compile-time, which reduces the gas cost significantly. The exact cost depends on the size of the `proof.pem` file. Installing the contract is somewhat expensive (for the example it's about `78 CSPR`). The cost of verifying a proof should generally be very low, likely less than `0.001` CSPR per call. 
+:warning: This low gas cost is misleading as it doesn't take into consideration the network effect. Validators must be compensated fairly for the Casper mainnet to be healthy. This implies a SIGNIFICANTLY larger cost, potentially in the thousands.
 
 To setup the network of Casper nodes, we will utilize my `nctl-titano-env` github repository, which includes a lot of useful scripts that extend the default docker image.
 First, we need to clone the `nctl-titano-env` github repository and checkout to the `circom` branch:
@@ -104,7 +105,7 @@ component main {public [a,b,c]} = Multiplier2();
 
 
 ## Generate the payload for the verifier :crystal_ball:
-Run `cargo test --features casper-circom` to generate the payload (`proof.pem`, `circuit.pem`) for the example circuit `multiplier2`. If you want to generate proofs for other circuits, import the `casper-circom` library and construct a custom `Generator`:
+Run `cargo test --features casper-circom` to generate the payload (`proof.pem`) for the example circuit `multiplier2`. If you want to generate proofs for other circuits, import the `casper-circom` library and construct a custom `Generator`:
 
 ```rust
 ...
@@ -112,7 +113,6 @@ let mut generator = CircomGenerator{
     wasm: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.wasm"),
     r1cs: PathBuf::from("/users/chef/Desktop/circom-cli/casper-circom/circom/multiplier/multiplier.r1cs"),
     proof_out: PathBuf::from("proof.pem"),
-    circuit_out: PathBuf::from("circuit.pem"),
     private_inputs: Vec::new(),
     public_inputs: vec![("a".to_string(), 2), ("b".to_string(), 20), ("c".to_string(), 40)]
 };
