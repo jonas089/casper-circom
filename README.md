@@ -130,7 +130,7 @@ cd circom-contract
 rustup target add wasm32-unknown-unknown
 cargo build --release --target wasm32-unknown-unknown
 ```
-:warning: Do not attempt to build the `casper-circom` crate with the wasm32 target, this will error. Make sure to cd into the `circom-casper` crate before running the build command!
+:warning: Do not attempt to build the `casper-circom` crate with the wasm32 target, this will error. Make sure to cd into the `circom-contract` crate before running the build command!
 
 The compiled contract can be found in `target/wasm32-unknown-unknown/release/circom-contract.wasm`
 
