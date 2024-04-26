@@ -1,3 +1,5 @@
+⚠️ nctl-titano-env has been deprecated. Use CCTL with the target branch of jonas089/casper-node instead. This readme will be updated accordingly soon.
+
 # Full circom support in casper-node :closed_lock_with_key:
 This project enables the verification of general purpose [circom](https://docs.circom.io/) zero knowledge proofs on-chain. This readme serves as a documentation and step-by-step instruction on how to practically apply my circom research and get started with on-chain circuit development on the [Casper](https://casper.network/en-us/) blockchain.
 
